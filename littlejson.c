@@ -1,11 +1,11 @@
 /*
-** parse.c for json in /home/rouill_a/Tek1/Graph/raytracer2/bonus/src/jparser
+** parse.c for json
 ** 
 ** Made by Alexis Rouillard
 ** Login   <alexis.rouillard@epitech.eu>
 ** 
 ** Started on  Sun May  7 12:42:21 2017 Alexis Rouillard
-** Last update Sun May  7 22:22:35 2017 Alexis Rouillard
+** Last update Mon May  8 09:57:46 2017 Alexis Rouillard
 */
 
 #include "littlejson.h"
@@ -215,10 +215,10 @@ int	prse_obj(int len, char **buff, t_j_val *s, const char *key)
 {
   char	*tmp;
 
-  if (len > 0 && **buff == '\"' && **(buff + len + 1) == '\"' &&
-      !strncmp(*(buff + 1), (char *)key, len))
+  if (len > 0 && **buff == '\"' && *(*buff + len + 1) == '\"' &&
+      !strncmp(*buff + 1, (char *)key, len))
     {
-      tmp = *(buff + len + 2);
+      tmp = *buff + len + 2;
       SKIPSPACE(tmp);
       if (*tmp != ':')
 	return (0);
@@ -237,7 +237,7 @@ int	prse_obj(int len, char **buff, t_j_val *s, const char *key)
       SKIPSPACE(tmp);
       return (j_parse(tmp, s));
     }
-  return (-1);
+  return (0);
 }
 
 int	j_get_obj(t_j_val json, const char *key, t_j_val *s)
@@ -267,6 +267,7 @@ int	j_get_obj(t_j_val json, const char *key, t_j_val *s)
 	buff++;
       SKIPSPACE(buff);
     }
+  return (1);
 }
 
 int	j_get_array(t_j_val json, int idx, t_j_val *s)
