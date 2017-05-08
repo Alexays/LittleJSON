@@ -5,7 +5,7 @@
 ** Login   <alexis.rouillard@epitech.eu>
 ** 
 ** Started on  Sun May  7 12:42:21 2017 Alexis Rouillard
-** Last update Mon May  8 09:57:46 2017 Alexis Rouillard
+** Last update Mon May  8 09:59:53 2017 Alexis Rouillard
 */
 
 #include "littlejson.h"
@@ -263,8 +263,7 @@ int	j_get_obj(t_j_val json, const char *key, t_j_val *s)
 	return (0);
       buff++;
       SKIPSPACE(buff);
-      if (*buff == ',')
-	buff++;
+      buff += (*buff == ',') ? 1 : 0;
       SKIPSPACE(buff);
     }
   return (1);
