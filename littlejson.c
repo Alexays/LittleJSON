@@ -5,7 +5,7 @@
 ** Login   <alexis.rouillard@epitech.eu>
 ** 
 ** Started on  Sun May  7 12:42:21 2017 Alexis Rouillard
-** Last update Mon May  8 09:59:53 2017 Alexis Rouillard
+** Last update Wed May 10 09:36:01 2017 Alexis Rouillard
 */
 
 #include "littlejson.h"
@@ -75,23 +75,23 @@ int	parse_object(char *beg, char **end)
     return (0);
   while (*buff != '}')
     {
-      SKIPSPACE(buff);
+      JUMP(buff);
       if (!skip_string(&buff))
 	return (0);
       buff++;
-      SKIPSPACE(buff);
+      JUMP(buff);
       if (*buff != ':')
 	return (0);
       buff++;
-      SKIPSPACE(buff);
+      JUMP(buff);
       if (!skip_val(&buff))
 	return (0);
       buff++;
-      SKIPSPACE(buff);
+      JUMP(buff);
       if (*buff != ',' && *buff != '}')
 	return (0);
       if (*buff == ',' && (buff += 1))
-	SKIPSPACE(buff);
+	JUMP(buff);
     }
   return (*end = buff, 1);
 }
@@ -219,11 +219,11 @@ int	prse_obj(int len, char **buff, t_j_val *s, const char *key)
       !strncmp(*buff + 1, (char *)key, len))
     {
       tmp = *buff + len + 2;
-      SKIPSPACE(tmp);
+      JUMP(tmp);
       if (*tmp != ':')
 	return (0);
       tmp++;
-      SKIPSPACE(tmp);
+      JUMP(tmp);
       return (j_parse(tmp, s));
     }
   else if (len == 0 && **buff == '\"' && (tmp = *buff))
@@ -234,7 +234,7 @@ int	prse_obj(int len, char **buff, t_j_val *s, const char *key)
       if (*tmp != ':')
 	return (0);
       tmp++;
-      SKIPSPACE(tmp);
+      JUMP(tmp);
       return (j_parse(tmp, s));
     }
   return (0);
@@ -249,22 +249,22 @@ int	j_get_obj(t_j_val json, const char *key, t_j_val *s)
   buff = json.val + 1;
   while (1)
     {
-      SKIPSPACE(buff);
+      JUMP(buff);
       if (*buff == '}' || !prse_obj(strlen((char *)key), &buff, s, key) ||
 	  !skip_string(&buff))
 	return (0);
       buff++;
-      SKIPSPACE(buff);
+      JUMP(buff);
       if (*buff != ':')
 	return (0);
       buff++;
-      SKIPSPACE(buff);
+      JUMP(buff);
       if (!skip_val(&buff))
 	return (0);
       buff++;
-      SKIPSPACE(buff);
+      JUMP(buff);
       buff += (*buff == ',') ? 1 : 0;
-      SKIPSPACE(buff);
+      JUMP(buff);
     }
   return (1);
 }

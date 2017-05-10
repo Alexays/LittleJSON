@@ -5,15 +5,14 @@
 ** Login   <alexis.rouillard@epitech.eu>
 ** 
 ** Started on  Sun May  7 22:17:50 2017 Alexis Rouillard
-** Last update Sun May  7 22:23:08 2017 Alexis Rouillard
+** Last update Wed May 10 09:35:02 2017 Alexis Rouillard
 */
 
 # include <stdio.h>
 # include <stdlib.h>
 # include <string.h>
 
-# define ISSPACE(c) ((char)(c) == ' ' || (char)(c) == '\n')
-# define SKIPSPACE(p) while (ISSPACE(*p))++p
+# define JUMP(p) while (((char)(*p) == 32 || (char)(*p) == '\n'))++p
 
 typedef enum	e_enum_val
   {
