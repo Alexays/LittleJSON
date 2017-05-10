@@ -5,7 +5,7 @@
 ** Login   <alexis.rouillard@epitech.eu>
 ** 
 ** Started on  Sun May  7 12:42:21 2017 Alexis Rouillard
-** Last update Wed May 10 10:55:46 2017 Alexis Rouillard
+** Last update Wed May 10 22:25:01 2017 Alexis Rouillard
 */
 
 #include "littlejson.h"
@@ -194,7 +194,7 @@ int	skip_val(char **tmp)
       (**tmp == '[' && !(res = skip_array(tmp))) ||
       (**tmp == '"' && !(res = skip_string(tmp))) ||
       ((**tmp == '-' || (**tmp >= '0' && **tmp <= '9')) &&
-       (res = !skip_number(tmp))))
+       !(res = skip_number(tmp))))
     *tmp = beg;
   if (**tmp == 't' && !strncmp(*tmp, "true", 4))
     *tmp += 3;
@@ -250,8 +250,11 @@ int	j_get_obj(t_j_val json, const char *key, t_j_val *s)
   while (1)
     {
       JUMP(buff);
-      if (*buff == '}' || !prse_obj(strlen((char *)key), &buff, s, key) ||
-	  !skip_string(&buff))
+      if (*buff == '}')
+	return (0);
+      if (prse_obj(strlen((char *)key), &buff, s, key) != 0)
+	return (1);
+      if (skip_string(&buff) != 1)
 	return (0);
       buff++;
       JUMP(buff);
@@ -259,7 +262,7 @@ int	j_get_obj(t_j_val json, const char *key, t_j_val *s)
 	return (0);
       buff++;
       JUMP(buff);
-      if (!skip_val(&buff))
+      if (skip_val(&buff) != 1)
 	return (0);
       buff++;
       JUMP(buff);
