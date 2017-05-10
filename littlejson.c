@@ -5,7 +5,7 @@
 ** Login   <alexis.rouillard@epitech.eu>
 ** 
 ** Started on  Sun May  7 12:42:21 2017 Alexis Rouillard
-** Last update Wed May 10 09:36:01 2017 Alexis Rouillard
+** Last update Wed May 10 10:55:46 2017 Alexis Rouillard
 */
 
 #include "littlejson.h"
@@ -226,7 +226,7 @@ int	prse_obj(int len, char **buff, t_j_val *s, const char *key)
       JUMP(tmp);
       return (j_parse(tmp, s));
     }
-  else if (len == 0 && **buff == '\"' && (tmp = *buff))
+  else if (len == 0 && **buff == '\"' && (tmp = *buff + 1))
     {
       while (*tmp != '\"')
 	tmp++;
