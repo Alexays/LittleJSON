@@ -5,7 +5,7 @@
 ** Login   <alexis.rouillard@epitech.eu>
 ** 
 ** Started on  Sun May  7 12:42:21 2017 Alexis Rouillard
-** Last update Wed May 10 22:25:01 2017 Alexis Rouillard
+** Last update Sun May 14 12:19:46 2017 Alexis Rouillard
 */
 
 #include "littlejson.h"
@@ -211,14 +211,16 @@ int	skip_val(char **tmp)
   return (res);
 }
 
-int	prse_obj(int len, char **buff, t_j_val *s, const char *key)
+int	prse_obj(int len, char *buff, t_j_val *s, const char *key)
 {
   char	*tmp;
 
-  if (len > 0 && **buff == '\"' && *(*buff + len + 1) == '\"' &&
-      !strncmp(*buff + 1, (char *)key, len))
+  s->key = NULL;
+  if (len > 0 && *buff == '\"' && *(buff + len + 1) == '\"' &&
+      !strncmp(buff + 1, (char *)key, len))
     {
-      tmp = *buff + len + 2;
+      s->key = (char *)key;
+      tmp = buff + len + 2;
       JUMP(tmp);
       if (*tmp != ':')
 	return (0);
@@ -226,12 +228,10 @@ int	prse_obj(int len, char **buff, t_j_val *s, const char *key)
       JUMP(tmp);
       return (j_parse(tmp, s));
     }
-  else if (len == 0 && **buff == '\"' && (tmp = *buff + 1))
+  else if (len == 0 && *buff == '\"' && (tmp = buff + 1) && (s->key = tmp))
     {
-      while (*tmp != '\"')
-	tmp++;
-      tmp++;
-      if (*tmp != ':')
+      while (*tmp != '\"' && (tmp += 1));
+      if ((tmp += 1) && *tmp != ':')
 	return (0);
       tmp++;
       JUMP(tmp);
@@ -240,9 +240,28 @@ int	prse_obj(int len, char **buff, t_j_val *s, const char *key)
   return (0);
 }
 
+char	*j_get_key(t_j_val json)
+{
+  char	*buff;
+  int	i;
+
+  i = -1;
+  if (!json.key)
+    return (NULL);
+  while (json.key[++i] != '"');
+  if (!(buff = malloc(sizeof(char) * (i + 1))))
+    return (NULL);
+  i = -1;
+  while (*(json.key + ++i) != '"')
+    buff[i] = *(json.key + i);
+  buff[i] = 0;
+  return (buff);
+}
+
 int	j_get_obj(t_j_val json, const char *key, t_j_val *s)
 {
   char	*buff;
+  int	ret;
 
   if (json.type != JSON_OBJECT)
     return (0);
@@ -252,51 +271,47 @@ int	j_get_obj(t_j_val json, const char *key, t_j_val *s)
       JUMP(buff);
       if (*buff == '}')
 	return (0);
-      if (prse_obj(strlen((char *)key), &buff, s, key) != 0)
-	return (1);
-      if (skip_string(&buff) != 1)
-	return (0);
+      if ((ret = prse_obj(strlen((char *)key), buff, s, key)) != 0 ||
+	  (ret = skip_string(&buff)) != 1)
+	return (ret);
       buff++;
       JUMP(buff);
-      if (*buff != ':')
+      if (*(buff++) != ':')
 	return (0);
-      buff++;
       JUMP(buff);
-      if (skip_val(&buff) != 1)
+      if ((ret = skip_val(&buff)) != 1 || *(buff++) == 0)
 	return (0);
-      buff++;
       JUMP(buff);
       buff += (*buff == ',') ? 1 : 0;
       JUMP(buff);
     }
-  return (1);
 }
 
-int	j_get_array(t_j_val json, int idx, t_j_val *s)
-{
-  char	*buff;
+  int	j_get_array(t_j_val json, int idx, t_j_val *s)
+  {
+    char	*buff;
 
-  if (json.type != JSON_ARRAY)
-    return (0);
-  buff = json.val;
-  buff++;
-  while (idx--)
-    {
-      while (*buff == 32 || *buff == '\n')
-	buff++;
-      if (!skip_val(&buff))
-	return (0);
-      buff++;
-      while (*buff == 32 || *buff == '\n')
-	buff++;
-      if (*buff != ',')
-	return (0);
-      buff++;
-    }
-  while (*buff == 32 || *buff == '\n')
+    if (json.type != JSON_ARRAY)
+      return (0);
+    buff = json.val;
     buff++;
-  return (j_parse(buff, s));
-}
+    while (idx--)
+      {
+	while (*buff == 32 || *buff == '\n')
+	  buff++;
+	if (!skip_val(&buff))
+	  return (0);
+	buff++;
+	while (*buff == 32 || *buff == '\n')
+	  buff++;
+	if (*buff != ',')
+	  return (0);
+	buff++;
+      }
+    while (*buff == 32 || *buff == '\n')
+      buff++;
+    return (j_parse(buff, s));
+  }
 
 int	j_get_number(t_j_val json, int	*val)
 {
@@ -310,18 +325,21 @@ int	j_get_number(t_j_val json, int	*val)
   return (1);
 }
 
-int	j_get_string(t_j_val json, char *val)
+char	*j_get_string(t_j_val json)
 {
   char	*end;
   int	i;
+  char	*buff;
 
   if (json.type != JSON_STRING)
-    return (0);
+    return (NULL);
   if (!parse_string(json.val, &end))
-    return (0);
+    return (NULL);
   i = -1;
+  if (!(buff = malloc(sizeof(char) * (end - json.val))))
+    return (NULL);
   while (++i < end - json.val - 1)
-    *(val + i) = *(json.val + i + 1);
-  *(val + i) = 0;
-  return (1);
+    *(buff + i) = *(json.val + i + 1);
+  *(buff + i) = 0;
+  return (buff);
 }
